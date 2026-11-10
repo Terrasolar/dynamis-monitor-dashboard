@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Radar de Preços · Dynamis</title>
+<title>Radar de Orçamentos · Dynamis + Belenus</title>
 <style>
   :root {
-    --surface-1:    #1a1a19;
     --page-plane:   #0d0d0d;
     --text-primary: #ffffff;
     --text-secondary: #c3c2b7;
@@ -14,8 +13,9 @@
     --gridline:     #2c2c2a;
     --baseline:     #383835;
     --border:       rgba(255,255,255,0.10);
-    --series-string: #3987e5;
-    --series-micro:  #d95926;
+    --series-a: #d95926;
+    --series-b: #9085e9;
+    --series-belenus: #3987e5;
     --good:   #0ca30c;
     --critical: #d03b3b;
     --banner-bg: #202423;
@@ -31,231 +31,92 @@
   }
   .wrap { max-width: 1100px; margin: 0 auto; }
 
-  .eyebrow {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--series-micro);
-  }
-  h1 {
-    font-size: 44px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.08;
-    margin: 10px 0 14px;
-  }
-  .lede {
-    color: var(--text-secondary);
-    font-size: 16px;
-    line-height: 1.55;
-    max-width: 760px;
-    margin: 0 0 18px;
-  }
-  .meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-muted);
-    font-size: 13px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--series-a); }
+  h1 { font-size: 40px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.12; margin: 10px 0 14px; }
+  .lede { color: var(--text-secondary); font-size: 16px; line-height: 1.55; max-width: 760px; margin: 0 0 18px; }
+  .meta { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; margin-bottom: 20px; flex-wrap: wrap; }
   .meta .dot { color: var(--border); }
-  .live {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--good);
-  }
-  .live .pulse {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--good);
-    box-shadow: 0 0 0 0 rgba(12,163,12,0.5);
-    animation: pulse 2s infinite;
-  }
+  .live { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--good); }
+  .live .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--good); animation: pulse 2s infinite; }
   @keyframes pulse {
     0%   { box-shadow: 0 0 0 0 rgba(12,163,12,0.45); }
     70%  { box-shadow: 0 0 0 6px rgba(12,163,12,0); }
     100% { box-shadow: 0 0 0 0 rgba(12,163,12,0); }
   }
 
-  .notice {
-    background: var(--banner-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 36px;
-  }
+  .notice { background: var(--banner-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
   .notice b { color: var(--text-primary); }
 
-  .card {
-    border-top: 1px solid var(--border);
-    padding: 36px 0;
-  }
-  .card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    margin-bottom: 6px;
-  }
+  .card { border-top: 1px solid var(--border); padding: 36px 0; }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 6px; }
   .card-title { font-size: 21px; font-weight: 700; }
-  .card-sub {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-    white-space: nowrap;
-    padding-top: 4px;
-  }
-  .card-desc {
-    color: var(--text-secondary);
-    font-size: 14px;
-    line-height: 1.5;
-    max-width: 700px;
-    margin: 6px 0 18px;
-  }
+  .card-sub { font-size: 13px; color: var(--text-muted); font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; white-space: nowrap; padding-top: 4px; }
+  .card-desc { color: var(--text-secondary); font-size: 14px; line-height: 1.5; max-width: 760px; margin: 6px 0 18px; }
 
-  .legend {
-    display: flex;
-    gap: 18px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 18px;
-  }
+  .legend { display: flex; gap: 18px; font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
   .legend span { display: inline-flex; align-items: center; gap: 7px; }
   .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
-  .chart {
-    position: relative;
-    height: 220px;
-    display: flex;
-    align-items: flex-end;
-    gap: 22px;
-    padding: 0 4px 28px;
-    margin-bottom: 8px;
-    background-image: repeating-linear-gradient(
-      to top,
-      var(--gridline) 0,
-      var(--gridline) 1px,
-      transparent 1px,
-      transparent 25%
-    );
-    background-position: 0 0;
-  }
-  .chart-baseline {
-    position: absolute;
-    left: 0; right: 0; bottom: 28px;
-    border-top: 1px solid var(--baseline);
-  }
-  .group {
-    flex: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 3px;
-    height: 100%;
-    position: relative;
-  }
-  .bar {
-    width: 18px;
-    max-width: 24px;
-    border-radius: 4px 4px 0 0;
-    min-height: 2px;
-  }
-  .bar.string { background: var(--series-string); }
-  .bar.micro  { background: var(--series-micro); }
+  .chart { position: relative; height: 220px; display: flex; align-items: flex-end; gap: 22px; padding: 0 4px 28px; margin: 0 0 8px 48px;
+    background-image: repeating-linear-gradient(to top, var(--gridline) 0, var(--gridline) 1px, transparent 1px, transparent 25%); }
+  .chart-baseline { position: absolute; left: 0; right: 0; bottom: 28px; border-top: 1px solid var(--baseline); }
+  .group { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 100%; position: relative; }
+  .bar { width: 18px; max-width: 24px; border-radius: 4px 4px 0 0; min-height: 2px; }
+  .bar.a { background: var(--series-a); }
+  .bar.b { background: var(--series-b); }
+  .bar.belenus { background: var(--series-belenus); }
   .bar:hover { filter: brightness(1.15); }
-  .group-label {
-    position: absolute;
-    bottom: -24px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  .y-ticks {
-    position: absolute;
-    left: 0; top: 0; bottom: 28px;
-    width: 0;
-  }
-  .y-tick {
-    position: absolute;
-    left: -4px;
-    transform: translate(-100%, 50%);
-    font-size: 11px;
-    color: var(--text-muted);
-  }
+  .group-label { position: absolute; bottom: -24px; font-size: 12px; color: var(--text-muted); }
+  .y-ticks { position: absolute; left: -48px; top: 0; bottom: 28px; width: 44px; }
+  .y-tick { position: absolute; right: 6px; transform: translateY(50%); font-size: 11px; color: var(--text-muted); }
 
   table { border-collapse: collapse; width: 100%; font-size: 13px; }
-  th, td {
-    padding: 9px 10px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    border-bottom: 1px solid var(--gridline);
-    white-space: nowrap;
-  }
+  th, td { padding: 9px 10px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--gridline); white-space: nowrap; }
   th:first-child, td:first-child { text-align: left; }
-  thead tr.group-row th {
-    border-bottom: none;
-    padding-bottom: 2px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-muted);
-  }
-  thead tr.col-row th {
-    color: var(--text-secondary);
-    font-weight: 600;
-  }
-  .col-string { color: var(--series-string); }
-  .col-micro  { color: var(--series-micro); }
-  .badge {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 999px;
-    background: rgba(12,163,12,0.16);
-    color: var(--good);
-    white-space: nowrap;
-  }
+  thead tr.group-row th { border-bottom: none; padding-bottom: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  thead tr.col-row th { color: var(--text-secondary); font-weight: 600; }
+  .col-a { color: var(--series-a); }
+  .col-b { color: var(--series-b); }
+  .col-belenus { color: var(--series-belenus); }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: rgba(12,163,12,0.16); color: var(--good); white-space: nowrap; }
   .delta-good { color: var(--good); font-weight: 600; }
   .delta-bad  { color: var(--critical); font-weight: 600; }
-  .cell-muted { color: var(--text-muted); }
+  .empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px 0; }
 
-  .empty { color: var(--text-muted); font-size: 14px; }
-  .footer-note {
-    color: var(--text-muted);
-    font-size: 12px;
-    margin-top: 48px;
-    border-top: 1px solid var(--border);
-    padding-top: 18px;
-  }
+  .listing-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .listing-head .card-title { font-size: 24px; }
+  .listing-count { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+  .group-divider td { background: #1a1a19; color: var(--text-secondary); font-weight: 700; padding: 10px; }
+  .group-divider .count { color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+  .hist-badge { display: inline-block; font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.06); border-radius: 6px; padding: 2px 8px; }
+
+  .footer-note { color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 40px; }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="eyebrow">Radar de Preços · Dynamis</div>
-    <h1>Microinversor vs. String, por módulo e estrutura</h1>
+    <div class="eyebrow">Radar de orçamentos · Dynamis + Belenus</div>
+    <h1>630W DAH — microinversor vs. string, e Dynamis vs. Belenus</h1>
     <p class="lede">
-      Mesma contagem de módulos, topologia de inversor diferente: quanto custa trocar
-      microinversor SOLAX por inversor string HUAWEI, para cada combinação de módulo
-      e estrutura ainda rastreada. Atualiza sozinho conforme o
-      <code>dynamis-monitor</code> renova os orçamentos e repreça.
+      Módulo 630W DAH, mesma quantidade de 4 a 16 unidades: quanto custa trocar a
+      topologia do inversor (microinversor SOLAX ou string HUAWEI), e quanto custa
+      trocar de distribuidor (Dynamis ou Belenus, mesma topologia string).
     </p>
     <div class="meta" id="meta">Carregando…</div>
     <div class="notice">
-      Valores do <b>Dynamis</b> já incluem o desconto negociado (8%) aplicado na gravação.
-      Cada família (módulo + estrutura) só aparece com as duas topologias lado a lado
-      quando ambas estão sendo rastreadas — do contrário, mostra a topologia única
-      disponível.
+      Valores do <b>Dynamis</b> já incluem o desconto de 8% negociado por fora da
+      plataforma. Valores do <b>Belenus</b> não têm desconto aplicado.
     </div>
-    <div id="out"><p class="empty">Carregando dados…</p></div>
-    <div class="footer-note">Fonte: <code>cotacoes_distribuidores</code> via Supabase REST (leitura pública). Atualiza a cada 5 minutos.</div>
   </div>
+
+  <div class="wrap" id="cards"><p class="empty">Carregando dados…</p></div>
+
+  <div class="wrap" id="listing"></div>
+
+  <p class="footer-note">
+    Preços do Dynamis (Dynamis — CD — Itajaí/SC, já com desconto de 8% aplicado) e do
+    Belenus/Belenergy (sem desconto), sujeitos a alteração por cada distribuidor.
+  </p>
 
   <script>
     const SUPABASE_URL = "https://lkfcdfpoxeallhzmvler.supabase.co";
@@ -263,98 +124,105 @@
 
     const money = (v) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (v) => (v > 0 ? "+" : "") + v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
-    const dateBR = (iso) => new Date(iso).toLocaleDateString("pt-BR");
+    const dateBR = (iso) => new Date(iso).toLocaleDateString("pt-BR") + ", " + new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-    async function load() {
-      let rows;
-      try {
-        const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/cotacoes_distribuidores?distribuidor=eq.Dynamis&select=*&order=modulo_wp.desc,modulos.asc`,
-          { headers: { apikey: ANON_KEY } },
-        );
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        rows = await res.json();
-      } catch (err) {
-        document.getElementById("out").innerHTML = `<p class="empty">Erro ao carregar dados: ${err.message}</p>`;
-        return;
-      }
-      render(rows);
+    // Deliberately scoped fetches, one per known-current series — NOT a blind
+    // "select everything and group by whatever's in the table" query. Real
+    // incident (2026-11-10): an earlier version of this page auto-discovered
+    // families from the whole table and surfaced a 590W module Dynamis no
+    // longer actually sells (confirmed by the user — Dynamis's catalog API
+    // gives no reliable signal to detect this automatically). This page can
+    // only ever render these explicit, known-good series, by construction.
+    async function fetchSeries(distribuidor, modulo_wp, estrutura, inversor_tipo) {
+      const qs = new URLSearchParams({
+        select: "*", distribuidor: `eq.${distribuidor}`, modulo_wp: `eq.${modulo_wp}`,
+        estrutura: `eq.${estrutura}`, inversor_tipo: `eq.${inversor_tipo}`, order: "modulos.asc",
+      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/cotacoes_distribuidores?${qs}`, { headers: { apikey: ANON_KEY } });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
     }
 
-    function render(rows) {
-      const meta = document.getElementById("meta");
-      const latest = rows.reduce((max, r) => (r.data_iso > max ? r.data_iso : max), rows[0]?.data_iso || "");
-      meta.innerHTML = `
+    async function load() {
+      let dynMicro, dynString, belStringTelhado, dynSoloString, belSoloString;
+      try {
+        [dynMicro, dynString, belStringTelhado, dynSoloString, belSoloString] = await Promise.all([
+          fetchSeries("Dynamis", 630, "Telhado", "Micro"),
+          fetchSeries("Dynamis", 630, "Telhado", "String"),
+          fetchSeries("Belenus", 615, "Telhado", "String"),
+          fetchSeries("Dynamis", 645, "Solo", "String"),
+          fetchSeries("Belenus", 615, "Solo", "String"),
+        ]);
+      } catch (err) {
+        document.getElementById("cards").innerHTML = `<p class="empty">Erro ao carregar dados: ${err.message}</p>`;
+        return;
+      }
+
+      const latest = [...dynMicro, ...dynString].map((r) => r.data_iso).reduce((a, b) => (a > b ? a : b), "");
+      document.getElementById("meta").innerHTML = `
         <span>Terra Solar</span><span class="dot">·</span>
-        <span>${rows.length} séries rastreadas</span><span class="dot">·</span>
+        <span>SOLAX X1-MICRO-1875W</span><span class="dot">·</span>
+        <span>Estrutura cerâmico/colonial PRO+</span><span class="dot">·</span>
         <span>atualizado ${latest ? dateBR(latest) : "—"}</span>
         <span class="live"><span class="pulse"></span>ao vivo</span>
       `;
 
-      const families = new Map();
-      for (const r of rows) {
-        const key = `${r.modulo_wp}|${r.estrutura}`;
-        if (!families.has(key)) families.set(key, { wp: r.modulo_wp, estrutura: r.estrutura, micro: [], string: [] });
-        const f = families.get(key);
-        (r.inversor_tipo === "Micro" ? f.micro : f.string).push(r);
-      }
+      const cards = document.getElementById("cards");
+      cards.innerHTML = "";
 
-      const order = [...families.values()].sort((a, b) => b.wp - a.wp || a.estrutura.localeCompare(b.estrutura));
-      const out = document.getElementById("out");
-      out.innerHTML = "";
-      if (order.length === 0) {
-        out.innerHTML = '<p class="empty">Nenhuma cotação rastreada ainda.</p>';
-        return;
-      }
-      for (const fam of order) out.appendChild(buildCard(fam));
+      cards.appendChild(buildCard({
+        title: "Microinversor vs. String — Dynamis (Telhado)",
+        sub: "mesmo módulo, topologia de inversor diferente",
+        desc: "Mesma contagem de módulos DAH 630W: microinversor SOLAX de um lado, inversor string HUAWEI do outro. Cresce sozinho conforme mais tamanhos de kit forem simulados nas duas topologias.",
+        legendA: "Microinversor", legendB: "String", colA: "Microinversor", colB: "String", classB: "b",
+        rows: mergeByN(dynMicro, dynString),
+      }));
+
+      cards.appendChild(buildCard({
+        title: "Microinversor vs. String — Belenus (Telhado)",
+        sub: "mesmo módulo, topologia de inversor diferente",
+        desc: "Mesma contagem de módulos na Belenus, estrutura telhado/colonial: microinversor FoxESS com módulo 625W DMEGC de um lado, inversor string HUAWEI com módulo 615W Astronergy do outro — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais tamanhos de kit forem simulados nas duas topologias.",
+        legendA: "Microinversor", legendB: "String", colA: "Microinversor", colB: "String", classB: "b",
+        rows: [],
+      }));
+
+      cards.appendChild(buildCard({
+        title: "Belenus vs. Dynamis — mesmo N, inversor String (Telhado)",
+        sub: "mesma quantidade de módulos, distribuidor diferente",
+        desc: "Mesma contagem e mesma topologia (String HUAWEI), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 630W DAH, Belenus com módulo 615W Astronergy — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (630W DAH)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        rows: mergeByN(dynString, belStringTelhado),
+      }));
+
+      cards.appendChild(buildCard({
+        title: "Belenus vs. Dynamis — mesmo N, microinversor (Telhado)",
+        sub: "mesma quantidade de módulos, distribuidor diferente",
+        desc: "Mesma contagem e mesma topologia (microinversor), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 630W DAH e microinversor SOLAX, Belenus com módulo 625W DMEGC e microinversor FoxESS — o Wp e a marca do microinversor diferem entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (630W DAH, SOLAX)", legendB: "Belenus (625W DMEGC, FoxESS)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        rows: [],
+      }));
+
+      cards.appendChild(buildCard({
+        title: "Belenus vs. Dynamis — mesmo N, inversor String (Estrutura Solo)",
+        sub: "mesma quantidade de módulos, distribuidor diferente, usina solo",
+        desc: "Mesma contagem de módulos e mesma topologia (String HUAWEI), estrutura solo (ground-mount), em dois distribuidores: Dynamis com módulo 645W JINKO, Belenus com módulo 615W ASTRONERGY. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (645W JINKO)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        rows: mergeByN(dynSoloString, belSoloString),
+      }));
+
+      renderListing([
+        { label: "Micro 630W DAH", rows: dynMicro, idPrefix: "#", power: 630 },
+        { label: "String 630W DAH", rows: dynString, idPrefix: "#", power: 630 },
+        { label: "String 645W Solo", rows: dynSoloString, idPrefix: "#", power: 645 },
+        { label: "String 615W Solo (Belenus)", rows: belSoloString, idPrefix: "", power: 615 },
+        { label: "String 615W (Belenus)", rows: belStringTelhado, idPrefix: "", power: 615 },
+      ]);
     }
 
-    function buildCard(fam) {
-      const card = document.createElement("div");
-      card.className = "card";
-      const hasBoth = fam.micro.length > 0 && fam.string.length > 0;
-      const title = hasBoth
-        ? `Microinversor vs. String — ${fam.wp}W ${fam.estrutura}`
-        : `${fam.micro.length ? "Microinversor" : "String"} — ${fam.wp}W ${fam.estrutura}`;
-
-      card.innerHTML = `
-        <div class="card-head">
-          <div class="card-title">${title}</div>
-          <div class="card-sub">${hasBoth ? "mesmo módulo, topologia de inversor diferente" : "topologia única rastreada"}</div>
-        </div>
-      `;
-
-      if (hasBoth) {
-        card.appendChild(legendEl());
-        const byN = mergeByN(fam.micro, fam.string);
-        card.appendChild(chartEl(byN, true));
-        card.appendChild(tableEl(byN, true));
-      } else {
-        const list = fam.micro.length ? fam.micro : fam.string;
-        const isMicro = fam.micro.length > 0;
-        const byN = list
-          .map((r) => ({ n: r.modulos, a: isMicro ? r : null, b: isMicro ? null : r }))
-          .sort((x, y) => x.n - y.n);
-        card.appendChild(chartEl(byN, false, isMicro));
-        card.appendChild(tableEl(byN, false, isMicro));
-      }
-      return card;
-    }
-
-    function legendEl() {
-      const div = document.createElement("div");
-      div.className = "legend";
-      div.innerHTML = `
-        <span><span class="swatch" style="background:var(--series-micro)"></span>Microinversor</span>
-        <span><span class="swatch" style="background:var(--series-string)"></span>String</span>
-      `;
-      return div;
-    }
-
-    function mergeByN(micro, string) {
+    function mergeByN(seriesA, seriesB) {
       const byN = new Map();
-      for (const r of micro) byN.set(r.modulos, { n: r.modulos, a: r, b: null });
-      for (const r of string) {
+      for (const r of seriesA) byN.set(r.modulos, { n: r.modulos, a: r, b: null });
+      for (const r of seriesB) {
         const existing = byN.get(r.modulos);
         if (existing) existing.b = r;
         else byN.set(r.modulos, { n: r.modulos, a: null, b: r });
@@ -368,15 +236,39 @@
       return Math.ceil(v / 50000) * 50000;
     }
 
-    function chartEl(byN, paired, singleIsMicro) {
-      const maxVal = Math.max(...byN.flatMap((r) => [r.a?.subtotal || 0, r.b?.subtotal || 0]));
+    function buildCard(cfg) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="card-head"><div class="card-title">${cfg.title}</div><div class="card-sub">${cfg.sub}</div></div>
+        <div class="card-desc">${cfg.desc}</div>
+      `;
+      const legend = document.createElement("div");
+      legend.className = "legend";
+      legend.innerHTML = `
+        <span><span class="swatch" style="background:var(--series-a)"></span>${cfg.legendA}</span>
+        <span><span class="swatch" style="background:var(--${cfg.classB === "belenus" ? "series-belenus" : "series-b"})"></span>${cfg.legendB}</span>
+      `;
+      card.appendChild(legend);
+
+      if (cfg.rows.length === 0) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "Aguardando dados do banco…";
+        card.appendChild(p);
+        return card;
+      }
+      card.appendChild(chartEl(cfg.rows, cfg.classB));
+      card.appendChild(tableEl(cfg.rows, cfg.colA, cfg.colB, cfg.classB));
+      return card;
+    }
+
+    function chartEl(rows, classB) {
+      const maxVal = Math.max(...rows.flatMap((r) => [r.a?.subtotal || 0, r.b?.subtotal || 0]));
       const top = niceMax(maxVal * 1.08);
       const ticks = [0, top * 0.25, top * 0.5, top * 0.75, top];
-
       const chart = document.createElement("div");
       chart.className = "chart";
-      chart.style.marginLeft = "48px";
-
       const yticks = document.createElement("div");
       yticks.className = "y-ticks";
       for (const t of ticks) {
@@ -387,21 +279,14 @@
         yticks.appendChild(el);
       }
       chart.appendChild(yticks);
-
       const baseline = document.createElement("div");
       baseline.className = "chart-baseline";
       chart.appendChild(baseline);
-
-      for (const row of byN) {
+      for (const row of rows) {
         const group = document.createElement("div");
         group.className = "group";
-        if (paired) {
-          if (row.a) group.appendChild(barEl(row.a.subtotal, top, "micro"));
-          if (row.b) group.appendChild(barEl(row.b.subtotal, top, "string"));
-        } else {
-          const r = row.a || row.b;
-          group.appendChild(barEl(r.subtotal, top, singleIsMicro ? "micro" : "string"));
-        }
+        if (row.a) group.appendChild(barEl(row.a.subtotal, top, "a"));
+        if (row.b) group.appendChild(barEl(row.b.subtotal, top, classB));
         const label = document.createElement("div");
         label.className = "group-label";
         label.textContent = row.n;
@@ -419,44 +304,20 @@
       return bar;
     }
 
-    function tableEl(byN, paired, singleIsMicro) {
+    function tableEl(rows, colA, colB, classB) {
       const table = document.createElement("table");
-      if (paired) {
-        table.innerHTML = `
-          <thead>
-            <tr class="group-row">
-              <th></th><th></th>
-              <th colspan="3" class="col-micro">Microinversor</th>
-              <th colspan="2" class="col-string">String</th>
-              <th></th><th></th>
-            </tr>
-            <tr class="col-row">
-              <th>Módulos</th><th>kWp</th>
-              <th></th><th>Valor</th><th>R$/kWp</th>
-              <th>Valor</th><th>R$/kWp</th>
-              <th>Diferença</th><th>%</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${byN.map((row) => rowHtmlPaired(row)).join("")}
-          </tbody>
-        `;
-      } else {
-        table.innerHTML = `
-          <thead>
-            <tr class="col-row">
-              <th>Módulos</th><th>kWp</th><th>Valor</th><th>R$/kWp</th><th>Atualizado</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${byN.map((row) => rowHtmlSingle(row)).join("")}
-          </tbody>
-        `;
-      }
+      const colBClass = classB === "belenus" ? "col-belenus" : "col-b";
+      table.innerHTML = `
+        <thead>
+          <tr class="group-row"><th></th><th></th><th colspan="2" class="col-a">${colA}</th><th colspan="2" class="${colBClass}">${colB}</th><th></th><th></th></tr>
+          <tr class="col-row"><th>Módulos</th><th>kWp</th><th>Valor</th><th>R$/kWp</th><th>Valor</th><th>R$/kWp</th><th>Diferença</th><th>%</th></tr>
+        </thead>
+        <tbody>${rows.map(rowHtml).join("")}</tbody>
+      `;
       return table;
     }
 
-    function rowHtmlPaired(row) {
+    function rowHtml(row) {
       const kwpA = row.a ? (row.a.modulos * row.a.modulo_wp / 1000) : null;
       const kwpB = row.b ? (row.b.modulos * row.b.modulo_wp / 1000) : null;
       const kwp = kwpA ?? kwpB;
@@ -464,36 +325,61 @@
         ? `${kwpA.toFixed(2)} / ${kwpB.toFixed(2)}`
         : kwp.toFixed(2).replace(".", ",");
 
-      let microCell, stringCell, deltaCell, pctCell;
+      let aCell, bCell, deltaCell, pctCell;
       if (row.a && row.b) {
-        const cheaperIsMicro = row.a.subtotal <= row.b.subtotal;
+        const aCheaper = row.a.subtotal <= row.b.subtotal;
         const diff = row.b.subtotal - row.a.subtotal;
         const diffPct = (diff / row.a.subtotal) * 100;
-        microCell = `<td>${cheaperIsMicro ? '<span class="badge">✓ mais barato</span>' : ""}</td>
-          <td>${money(row.a.subtotal)}</td><td>${money(row.a.subtotal / kwpA)}</td>`;
-        stringCell = `<td>${!cheaperIsMicro ? '<span class="badge">✓ mais barato</span>' : ""} ${money(row.b.subtotal)}</td>
-          <td>${money(row.b.subtotal / kwpB)}</td>`;
+        aCell = `<td>${aCheaper ? '<span class="badge">✓ mais barato</span>' : ""} ${money(row.a.subtotal)}</td><td>${money(row.a.subtotal / kwpA)}</td>`;
+        bCell = `<td>${!aCheaper ? '<span class="badge">✓ mais barato</span>' : ""} ${money(row.b.subtotal)}</td><td>${money(row.b.subtotal / kwpB)}</td>`;
         const cls = diff <= 0 ? "delta-good" : "delta-bad";
         deltaCell = `<td class="${cls}">${diff >= 0 ? "R$ " + Math.round(diff) : "R$ -" + Math.round(-diff)}</td>`;
         pctCell = `<td class="${cls}">${pct(diffPct)}</td>`;
       } else if (row.a) {
-        microCell = `<td></td><td>${money(row.a.subtotal)}</td><td>${money(row.a.subtotal / kwpA)}</td>`;
-        stringCell = `<td class="cell-muted">—</td><td class="cell-muted">—</td>`;
-        deltaCell = `<td class="cell-muted">—</td>`; pctCell = `<td class="cell-muted">—</td>`;
+        aCell = `<td>${money(row.a.subtotal)}</td><td>${money(row.a.subtotal / kwpA)}</td>`;
+        bCell = `<td>—</td><td>—</td>`; deltaCell = `<td>—</td>`; pctCell = `<td>—</td>`;
       } else {
-        microCell = `<td></td><td class="cell-muted">—</td><td class="cell-muted">—</td>`;
-        stringCell = `<td>${money(row.b.subtotal)}</td><td>${money(row.b.subtotal / kwpB)}</td>`;
-        deltaCell = `<td class="cell-muted">—</td>`; pctCell = `<td class="cell-muted">—</td>`;
+        aCell = `<td>—</td><td>—</td>`;
+        bCell = `<td>${money(row.b.subtotal)}</td><td>${money(row.b.subtotal / kwpB)}</td>`;
+        deltaCell = `<td>—</td>`; pctCell = `<td>—</td>`;
       }
-      return `<tr><td>${row.n}</td><td>${kwpLabel}</td>${microCell}${stringCell}${deltaCell}${pctCell}</tr>`;
+      return `<tr><td>${row.n}</td><td>${kwpLabel}</td>${aCell}${bCell}${deltaCell}${pctCell}</tr>`;
     }
 
-    function rowHtmlSingle(row) {
-      const r = row.a || row.b;
-      const kwp = r.modulos * r.modulo_wp / 1000;
-      return `<tr><td>${row.n}</td><td>${kwp.toFixed(2).replace(".", ",")}</td>
-        <td>${money(r.subtotal)}</td><td>${money(r.subtotal / kwp)}</td>
-        <td class="cell-muted">${dateBR(r.data_iso)}</td></tr>`;
+    function renderListing(groups) {
+      const total = groups.reduce((sum, g) => sum + g.rows.length, 0);
+      const el = document.getElementById("listing");
+      if (total === 0) { el.innerHTML = ""; return; }
+      el.innerHTML = `
+        <div class="card" style="border-top:1px solid var(--border)">
+          <div class="listing-head">
+            <div class="card-title">Todos os orçamentos</div>
+            <div class="listing-count">${total} orçamentos rastreados · Em Negociação</div>
+          </div>
+          <div class="card-desc">Histórico e variação desde a última verificação — a coluna de tendência preenche conforme o radar registra novos checks.</div>
+          <table>
+            <thead><tr class="col-row"><th>N° Orçamento</th><th>Módulos</th><th>Potência</th><th>Valor Atual</th><th>R$/kWp</th><th>Tendência</th><th>Var. último check</th></tr></thead>
+            <tbody id="listing-body"></tbody>
+          </table>
+        </div>
+      `;
+      const body = document.getElementById("listing-body");
+      body.innerHTML = groups.filter((g) => g.rows.length > 0).map((g) => {
+        const header = `<tr class="group-divider"><td colspan="7">${g.label} <span class="count">${g.rows.length} orçamentos</span></td></tr>`;
+        const rows = g.rows.map((r) => {
+          const kwp = (r.modulos * r.modulo_wp / 1000).toFixed(2).replace(".", ",");
+          return `<tr>
+            <td>${g.idPrefix}${r.orcamento_id}</td>
+            <td>${r.modulos}×${g.power}W</td>
+            <td>${kwp} kWp</td>
+            <td>${money(r.subtotal)}</td>
+            <td>${money(r.subtotal / (r.modulos * r.modulo_wp / 1000))}</td>
+            <td>•</td>
+            <td><span class="hist-badge">sem histórico</span></td>
+          </tr>`;
+        }).join("");
+        return header + rows;
+      }).join("");
     }
 
     load();
