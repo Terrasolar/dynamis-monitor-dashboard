@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Dynamis Monitor — Preços</title>
+<style>
+  body { background:#0e1418; color:#edf1f3; font-family: "Segoe UI", sans-serif; margin:0; padding:40px 24px; }
+  h1 { font-family: "Bahnschrift", sans-serif; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 32px; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid #2a3640; text-align: right; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  .group-title { font-size: 13px; color:#93a2ab; text-transform: uppercase; margin: 24px 0 8px; }
+</style>
+</head>
+<body>
+  <h1>Dynamis Monitor — Preços</h1>
+  <div id="out">Carregando…</div>
+  <script>
+    const SUPABASE_URL = "https://lkfcdfpoxeallhzmvler.supabase.co";
+    const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrZmNkZnBveGVhbGxoem12bGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MzQ3NDksImV4cCI6MjEwMzIxMDc0OX0.Glx2H-onZ4JhqypWjA8yeDq7e8e_T_ajbEj_3jApKgk";
+
+    async function load() {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/cotacoes_distribuidores?select=*&order=modulos.asc`,
+        { headers: { apikey: ANON_KEY } },
+      );
+      if (!res.ok) {
+        document.getElementById("out").textContent = "Erro ao carregar dados.";
+        return;
+      }
+      const rows = await res.json();
+      render(rows);
+    }
+
+    function render(rows) {
+      const groups = {};
+      for (const r of rows) {
+        const key = `${r.distribuidor} ${r.inversor_tipo} ${r.estrutura} ${r.modulo_wp}W`;
+        (groups[key] ??= []).push(r);
+      }
+      const out = document.getElementById("out");
+      out.innerHTML = "";
+      for (const [key, items] of Object.entries(groups)) {
+        const title = document.createElement("div");
+        title.className = "group-title";
+        title.textContent = key;
+        out.appendChild(title);
+
+        const table = document.createElement("table");
+        table.innerHTML = "<tr><th>N</th><th>Valor</th><th>R$/kWp</th><th>Atualizado</th></tr>" +
+          items.map((r) => {
+            const kwp = (r.modulos * r.modulo_wp) / 1000;
+            const rsPorKwp = (r.subtotal / kwp).toFixed(2);
+            const updated = new Date(r.data_iso).toLocaleDateString("pt-BR");
+            return `<tr><td>${r.modulos}</td><td>R$ ${r.subtotal.toFixed(2)}</td><td>R$ ${rsPorKwp}</td><td>${updated}</td></tr>`;
+          }).join("");
+        out.appendChild(table);
+      }
+    }
+
+    load();
+    setInterval(load, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
