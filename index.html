@@ -96,9 +96,9 @@
 <body>
   <div class="wrap">
     <div class="eyebrow">Radar de orçamentos · Dynamis + Belenus</div>
-    <h1>630W DAH — microinversor vs. string, e Dynamis vs. Belenus</h1>
+    <h1>620W DAH — microinversor vs. string, e Dynamis vs. Belenus</h1>
     <p class="lede">
-      Módulo 630W DAH, mesma quantidade de 4 a 16 unidades: quanto custa trocar a
+      Módulo 620W DAH, mesma quantidade de 4 a 16 unidades: quanto custa trocar a
       topologia do inversor (microinversor SOLAX ou string HUAWEI), e quanto custa
       trocar de distribuidor (Dynamis ou Belenus, mesma topologia string).
     </p>
@@ -147,8 +147,8 @@
       let dynMicro, dynString, belStringTelhado, dynSoloString, belSoloString;
       try {
         [dynMicro, dynString, belStringTelhado, dynSoloString, belSoloString] = await Promise.all([
-          fetchSeries("Dynamis", 630, "Telhado", "Micro"),
-          fetchSeries("Dynamis", 630, "Telhado", "String"),
+          fetchSeries("Dynamis", 620, "Telhado", "Micro"),
+          fetchSeries("Dynamis", 620, "Telhado", "String"),
           fetchSeries("Belenus", 615, "Telhado", "String"),
           fetchSeries("Dynamis", 645, "Solo", "String"),
           fetchSeries("Belenus", 615, "Solo", "String"),
@@ -173,7 +173,7 @@
       cards.appendChild(buildCard({
         title: "Microinversor vs. String — Dynamis (Telhado)",
         sub: "mesmo módulo, topologia de inversor diferente",
-        desc: "Mesma contagem de módulos DAH 630W: microinversor SOLAX de um lado, inversor string HUAWEI do outro. Cresce sozinho conforme mais tamanhos de kit forem simulados nas duas topologias.",
+        desc: "Mesma contagem de módulos DAH 620W: microinversor SOLAX de um lado, inversor string HUAWEI do outro. Cresce sozinho conforme mais tamanhos de kit forem simulados nas duas topologias.",
         legendA: "Microinversor", legendB: "String", colA: "Microinversor", colB: "String", classB: "b",
         rows: mergeByN(dynMicro, dynString),
       }));
@@ -189,16 +189,16 @@
       cards.appendChild(buildCard({
         title: "Belenus vs. Dynamis — mesmo N, inversor String (Telhado)",
         sub: "mesma quantidade de módulos, distribuidor diferente",
-        desc: "Mesma contagem e mesma topologia (String HUAWEI), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 630W DAH, Belenus com módulo 615W Astronergy — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
-        legendA: "Dynamis (630W DAH)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        desc: "Mesma contagem e mesma topologia (String HUAWEI), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 620W DAH, Belenus com módulo 615W Astronergy — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (620W DAH)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
         rows: mergeByN(dynString, belStringTelhado),
       }));
 
       cards.appendChild(buildCard({
         title: "Belenus vs. Dynamis — mesmo N, microinversor (Telhado)",
         sub: "mesma quantidade de módulos, distribuidor diferente",
-        desc: "Mesma contagem e mesma topologia (microinversor), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 630W DAH e microinversor SOLAX, Belenus com módulo 625W DMEGC e microinversor FoxESS — o Wp e a marca do microinversor diferem entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
-        legendA: "Dynamis (630W DAH, SOLAX)", legendB: "Belenus (625W DMEGC, FoxESS)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        desc: "Mesma contagem e mesma topologia (microinversor), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 620W DAH e microinversor SOLAX, Belenus com módulo 625W DMEGC e microinversor FoxESS — o Wp e a marca do microinversor diferem entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (620W DAH, SOLAX)", legendB: "Belenus (625W DMEGC, FoxESS)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
         rows: [],
       }));
 
@@ -211,8 +211,8 @@
       }));
 
       renderListing([
-        { label: "Micro 630W DAH", rows: dynMicro, idPrefix: "#", power: 630 },
-        { label: "String 630W DAH", rows: dynString, idPrefix: "#", power: 630 },
+        { label: "Micro 620W DAH", rows: dynMicro, idPrefix: "#", power: 620 },
+        { label: "String 620W DAH", rows: dynString, idPrefix: "#", power: 620 },
         { label: "String 645W Solo", rows: dynSoloString, idPrefix: "#", power: 645 },
         { label: "String 615W Solo (Belenus)", rows: belSoloString, idPrefix: "", power: 615 },
         { label: "String 615W (Belenus)", rows: belStringTelhado, idPrefix: "", power: 615 },
