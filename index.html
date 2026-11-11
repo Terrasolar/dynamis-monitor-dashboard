@@ -158,7 +158,8 @@
         return;
       }
 
-      const latest = [...dynMicro, ...dynString].map((r) => r.data_iso).reduce((a, b) => (a > b ? a : b), "");
+      const latest = [...dynMicro, ...dynString, ...belStringTelhado, ...dynSoloString, ...belSoloString]
+        .map((r) => r.data_iso).reduce((a, b) => (a > b ? a : b), "");
       document.getElementById("meta").innerHTML = `
         <span>Terra Solar</span><span class="dot">·</span>
         <span>SOLAX X1-MICRO-1875W</span><span class="dot">·</span>
