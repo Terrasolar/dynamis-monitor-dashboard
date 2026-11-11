@@ -149,9 +149,9 @@
         [dynMicro, dynString, belStringTelhado, dynSoloString, belSoloString] = await Promise.all([
           fetchSeries("Dynamis", 620, "Telhado", "Micro"),
           fetchSeries("Dynamis", 620, "Telhado", "String"),
-          fetchSeries("Belenus", 615, "Telhado", "String"),
+          fetchSeries("Belenus", 620, "Telhado", "String"),
           fetchSeries("Dynamis", 645, "Solo", "String"),
-          fetchSeries("Belenus", 615, "Solo", "String"),
+          fetchSeries("Belenus", 620, "Solo", "String"),
         ]);
       } catch (err) {
         document.getElementById("cards").innerHTML = `<p class="empty">Erro ao carregar dados: ${err.message}</p>`;
@@ -189,8 +189,8 @@
       cards.appendChild(buildCard({
         title: "Belenus vs. Dynamis — mesmo N, inversor String (Telhado)",
         sub: "mesma quantidade de módulos, distribuidor diferente",
-        desc: "Mesma contagem e mesma topologia (String HUAWEI), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 620W DAH, Belenus com módulo 615W Astronergy — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
-        legendA: "Dynamis (620W DAH)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        desc: "Mesma contagem e mesma topologia (String HUAWEI), estrutura telhado/colonial, em dois distribuidores: Dynamis com módulo 620W DAH, Belenus com módulo 620W OSDA.",
+        legendA: "Dynamis (620W DAH)", legendB: "Belenus (620W OSDA)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
         rows: mergeByN(dynString, belStringTelhado),
       }));
 
@@ -205,8 +205,8 @@
       cards.appendChild(buildCard({
         title: "Belenus vs. Dynamis — mesmo N, inversor String (Estrutura Solo)",
         sub: "mesma quantidade de módulos, distribuidor diferente, usina solo",
-        desc: "Mesma contagem de módulos e mesma topologia (String HUAWEI), estrutura solo (ground-mount), em dois distribuidores: Dynamis com módulo 645W JINKO, Belenus com módulo 615W ASTRONERGY. Cresce sozinho conforme mais N forem simulados nos dois.",
-        legendA: "Dynamis (645W JINKO)", legendB: "Belenus (615W Astronergy)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
+        desc: "Mesma contagem de módulos e mesma topologia (String HUAWEI), estrutura solo (ground-mount), em dois distribuidores: Dynamis com módulo 645W JINKO, Belenus com módulo 620W OSDA — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais N forem simulados nos dois.",
+        legendA: "Dynamis (645W JINKO)", legendB: "Belenus (620W OSDA)", colA: "Dynamis", colB: "Belenus", classB: "belenus",
         rows: mergeByN(dynSoloString, belSoloString),
       }));
 
@@ -214,8 +214,8 @@
         { label: "Micro 620W DAH", rows: dynMicro, idPrefix: "#", power: 620 },
         { label: "String 620W DAH", rows: dynString, idPrefix: "#", power: 620 },
         { label: "String 645W Solo", rows: dynSoloString, idPrefix: "#", power: 645 },
-        { label: "String 615W Solo (Belenus)", rows: belSoloString, idPrefix: "", power: 615 },
-        { label: "String 615W (Belenus)", rows: belStringTelhado, idPrefix: "", power: 615 },
+        { label: "String 620W Solo (Belenus)", rows: belSoloString, idPrefix: "", power: 620 },
+        { label: "String 620W (Belenus)", rows: belStringTelhado, idPrefix: "", power: 620 },
       ]);
     }
 
