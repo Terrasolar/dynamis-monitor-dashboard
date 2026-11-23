@@ -109,6 +109,22 @@
     </div>
   </div>
 
+  <!-- Esta página expõe preço de custo de fornecedor. Até 2026-11-23 ela lia a
+       tabela com a chave anon, que é pública por definição — qualquer pessoa com
+       a URL via a tabela inteira. Agora exige login (achado SEG-1 da auditoria
+       do CRM). -->
+  <div class="wrap" id="login" hidden>
+    <form id="login-form" class="notice" style="display:grid;gap:10px;max-width:360px">
+      <b>Entre para ver os preços</b>
+      <label>E-mail<input id="login-email" type="email" required autocomplete="username"
+        style="width:100%;padding:8px;margin-top:4px"></label>
+      <label>Senha<input id="login-senha" type="password" required autocomplete="current-password"
+        style="width:100%;padding:8px;margin-top:4px"></label>
+      <button type="submit" id="login-botao" style="padding:8px 14px">Entrar</button>
+      <span id="login-erro" class="empty" hidden></span>
+    </form>
+  </div>
+
   <div class="wrap" id="cards"><p class="empty">Carregando dados…</p></div>
 
   <div class="wrap" id="listing"></div>
@@ -121,6 +137,60 @@
   <script>
     const SUPABASE_URL = "https://lkfcdfpoxeallhzmvler.supabase.co";
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrZmNkZnBveGVhbGxoem12bGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MzQ3NDksImV4cCI6MjEwMzIxMDc0OX0.Glx2H-onZ4JhqypWjA8yeDq7e8e_T_ajbEj_3jApKgk";
+
+    // ----- Sessão -----
+    // A página é estática (GitHub Pages), então não há servidor para guardar
+    // sessão: o token do Supabase fica no sessionStorage, que morre ao fechar a
+    // aba. Deliberado — localStorage deixaria o acesso ao preço de custo aberto
+    // para quem usar a mesma máquina depois.
+    const CHAVE_TOKEN = "dynamis_dashboard_token";
+    class ErroSemSessao extends Error {
+      constructor() {
+        super("sessao expirada");
+      }
+    }
+
+    const tokenAtual = () => sessionStorage.getItem(CHAVE_TOKEN) ?? "";
+
+    async function entrar(email, senha) {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: "POST",
+        headers: { apikey: ANON_KEY, "content-type": "application/json" },
+        body: JSON.stringify({ email, password: senha }),
+      });
+      const corpo = await res.json().catch(() => ({}));
+      if (!res.ok || !corpo.access_token) {
+        throw new Error(res.status === 400 ? "E-mail ou senha incorretos." : `Falha ao entrar (HTTP ${res.status}).`);
+      }
+      sessionStorage.setItem(CHAVE_TOKEN, corpo.access_token);
+    }
+
+    function pedirLogin(mensagem) {
+      sessionStorage.removeItem(CHAVE_TOKEN);
+      document.getElementById("login").hidden = false;
+      document.getElementById("cards").innerHTML = "";
+      document.getElementById("listing").innerHTML = "";
+      document.getElementById("meta").textContent = mensagem ?? "Entre para ver os preços.";
+    }
+
+    document.getElementById("login-form").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const botao = document.getElementById("login-botao");
+      const erro = document.getElementById("login-erro");
+      botao.disabled = true;
+      erro.hidden = true;
+      try {
+        await entrar(document.getElementById("login-email").value, document.getElementById("login-senha").value);
+        document.getElementById("login").hidden = true;
+        document.getElementById("login-senha").value = "";
+        await load();
+      } catch (e) {
+        erro.textContent = e.message;
+        erro.hidden = false;
+      } finally {
+        botao.disabled = false;
+      }
+    });
 
     const money = (v) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (v) => (v > 0 ? "+" : "") + v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
@@ -138,7 +208,12 @@
         select: "*", distribuidor: `eq.${distribuidor}`, modulo_wp: `eq.${modulo_wp}`,
         estrutura: `eq.${estrutura}`, inversor_tipo: `eq.${inversor_tipo}`, order: "modulos.asc",
       });
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/cotacoes_distribuidores?${qs}`, { headers: { apikey: ANON_KEY } });
+      // A chave anon sozinha já não abre a tabela: a leitura agora exige um
+      // token de usuário autenticado (achado SEG-1).
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/cotacoes_distribuidores?${qs}`, {
+        headers: { apikey: ANON_KEY, Authorization: `Bearer ${tokenAtual()}` },
+      });
+      if (res.status === 401 || res.status === 403) throw new ErroSemSessao();
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
     }
@@ -154,6 +229,12 @@
           fetchSeries("Belenus", 620, "Solo", "String"),
         ]);
       } catch (err) {
+        // Sem sessão (ou com token expirado) volta para o login em vez de
+        // mostrar "erro ao carregar": o motivo é outro e a ação é outra.
+        if (err instanceof ErroSemSessao) {
+          pedirLogin("Sua sessão expirou. Entre novamente.");
+          return;
+        }
         document.getElementById("cards").innerHTML = `<p class="empty">Erro ao carregar dados: ${err.message}</p>`;
         return;
       }
@@ -383,8 +464,13 @@
       }).join("");
     }
 
-    load();
-    setInterval(load, 5 * 60 * 1000);
+    // Sem token guardado nem tenta buscar: iria direto para o 401.
+    if (tokenAtual()) load();
+    else pedirLogin();
+    // A atualização automática só faz sentido com sessão ativa.
+    setInterval(() => {
+      if (tokenAtual()) load();
+    }, 5 * 60 * 1000);
   </script>
 </body>
 </html>
