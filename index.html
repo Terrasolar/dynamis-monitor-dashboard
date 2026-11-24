@@ -1462,7 +1462,10 @@
   /* PostgREST devolve numeric como string e timestamptz com espaço no lugar do
      T — os dois quebram o resto do código em silêncio (NaN e Invalid Date), daí
      a conversão explícita aqui. O desconto vem da coluna, que é a fonte: a
-     regra por nome em descontoFor() virou só fallback. */
+     regra por nome em descontoFor() virou só fallback — por isso `null` é
+     preservado (não vira 0) aqui: `Number(null)` seria 0, e um 0 passa no
+     `typeof === "number"` de descontoFor, fazendo uma linha antiga sem
+     desconto gravado exibir "0% de desconto" em vez de cair no fallback. */
   function mapear(linha) {
     return {
       orcamento_id: linha.orcamento_id,
@@ -1470,7 +1473,7 @@
       distribuidor: linha.distribuidor,
       modulos: linha.modulos,
       subtotal: Number(linha.subtotal),
-      desconto: Number(linha.desconto),
+      desconto: linha.desconto == null ? null : Number(linha.desconto),
       data_iso: String(linha.data_iso).replace(" ", "T")
     };
   }
