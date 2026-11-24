@@ -776,19 +776,23 @@
     return /\bSolo\b/i.test(nome || "") ? "Solo" : "Telhado";
   }
 
-  /* Desconto negociado por fora da plataforma, direto com o vendedor — só existe no Dynamis. */
-  var DESCONTO_POR_DISTRIBUIDOR = { "Dynamis": 0.08, "Belenus": 0 };
-  /* 2026-11-19: o desconto Dynamis subiu para 9% especificamente nos kits de
-     estrutura marca "2P" (o nome do orçamento sempre carrega o marcador
-     "2P", ex. "7 620Wp Micro 2P Claude") — todo o resto continua nos 8%
-     originais. Um `desconto` explícito gravado no próprio doc (uso futuro,
-     outras exceções) sempre vence sobre essa regra por nome. */
-  function descontoFor(dist, doc) {
-    if (doc && typeof doc.desconto === "number") return doc.desconto;
-    if (dist === "Dynamis" && /\b2P\b/.test((doc && doc.nome) || "")) return 0.09;
-    return DESCONTO_POR_DISTRIBUIDOR[dist] || 0;
-  }
+  /* `subtotal` já chega LÍQUIDO do banco: quem grava a linha aplica o desconto
+     na origem — dynamis-monitor faz `applyDynamisDesconto(pricing.subTotal,
+     desconto)` antes do upsert (supabase/functions/dynamis-monitor/index.ts),
+     com 8% no padrão e 9% nos kits de estrutura "2P"; a Belenus grava bruto
+     porque não tem desconto negociado (confirmado 2026-11-24). A coluna
+     `desconto` é só registro de QUAL base foi usada — ver o COMMENT ON COLUMN
+     em cotacoes_distribuidores.
 
+     Este painel aplicava o desconto de novo aqui (`subtotal * (1 - desconto)`),
+     desde que foi trazido do artifact em 2026-11-23: o Dynamis aparecia ~8-9%
+     mais barato do que é, e só o Dynamis — justo o lado que tem desconto —,
+     enviesando toda a comparação por N. O consumidor irmão desta mesma coluna,
+     o painel do CRM, sempre fez certo (`const valor = ultima.subtotal` em
+     src/lib/cotacoes.ts, coberto por src/lib/cotacoes.test.ts); os dois agora
+     concordam. Se um dia o percentual precisar ser EXIBIDO por série, a coluna
+     `desconto` continua no banco — mas ela nunca deve voltar a multiplicar o
+     subtotal. */
   function buildSeries(docs) {
     // group by orcamento_id, sort history ascending by data_iso
     var byId = {};
@@ -806,8 +810,7 @@
       var estrutura = parseEstrutura(latest.nome);
       var n = latest.modulos;
       var kwp = n * wp / 1000;
-      var desconto = descontoFor(dist, latest);
-      var valor = latest.subtotal * (1 - desconto);
+      var valor = latest.subtotal;
       items.push({
         num: id,
         n: n,
@@ -815,7 +818,6 @@
         invType: invType,
         dist: dist,
         estrutura: estrutura,
-        desconto: desconto,
         nome: latest.nome,
         valor: valor,
         kwp: kwp,
@@ -1461,11 +1463,9 @@
 
   /* PostgREST devolve numeric como string e timestamptz com espaço no lugar do
      T — os dois quebram o resto do código em silêncio (NaN e Invalid Date), daí
-     a conversão explícita aqui. O desconto vem da coluna, que é a fonte: a
-     regra por nome em descontoFor() virou só fallback — por isso `null` é
-     preservado (não vira 0) aqui: `Number(null)` seria 0, e um 0 passa no
-     `typeof === "number"` de descontoFor, fazendo uma linha antiga sem
-     desconto gravado exibir "0% de desconto" em vez de cair no fallback. */
+     a conversão explícita aqui. `desconto` não é mais lido: o subtotal já chega
+     líquido (ver buildSeries), então a coluna não entra em nenhuma conta deste
+     painel e saiu também do select abaixo. */
   function mapear(linha) {
     return {
       orcamento_id: linha.orcamento_id,
@@ -1473,13 +1473,12 @@
       distribuidor: linha.distribuidor,
       modulos: linha.modulos,
       subtotal: Number(linha.subtotal),
-      desconto: linha.desconto == null ? null : Number(linha.desconto),
       data_iso: String(linha.data_iso).replace(" ", "T")
     };
   }
 
   async function buscarCotacoes() {
-    var qs = "select=orcamento_id,nome,distribuidor,modulos,subtotal,desconto,data_iso"
+    var qs = "select=orcamento_id,nome,distribuidor,modulos,subtotal,data_iso"
       + "&order=data_iso.desc&limit=1000";
     var res = await fetch(SUPABASE_URL + "/rest/v1/cotacoes_distribuidores?" + qs, {
       headers: { apikey: ANON_KEY, Authorization: "Bearer " + tokenAtual() }
