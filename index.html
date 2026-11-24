@@ -291,11 +291,6 @@
   .axis-label { font-size: 11.5px; fill: var(--ink-faint); }
   .line-dot.peak { r: 5.5; }
 
-  .spark-svg { width: 76px; height: 24px; display: block; overflow: visible; }
-  .spark-path { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .spark-dot { fill: var(--accent); }
-  .spark-flat { fill: var(--ink-faint); }
-
   .tooltip {
     position: fixed;
     pointer-events: none;
@@ -453,19 +448,6 @@
   }
   .cheap-pill.cheap-pill-ghost { visibility: hidden; }
 
-  .delta-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 11.5px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 100px;
-  }
-  .delta-badge.up { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
-  .delta-badge.down { color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
-  .delta-badge.flat { color: var(--ink-faint); background: var(--surface-2); }
-
   footer.foot {
     font-size: 12px;
     color: var(--ink-faint);
@@ -559,7 +541,7 @@
       <h2>Microinversor vs. String &mdash; Belenus (Telhado)</h2>
       <span class="caption">mesmo módulo, topologia de inversor diferente</span>
     </div>
-    <p class="note">Mesma contagem de módulos na Belenus, estrutura telhado/colonial: microinversor FoxESS com módulo 625W DMEGC de um lado, inversor string HUAWEI com módulo 615W Astronergy do outro — o Wp difere entre eles, por isso o kWp de cada lado aparece separado. Cresce sozinho conforme mais tamanhos de kit forem simulados nas duas topologias.</p>
+    <p class="note">Mesma contagem de módulos na Belenus, estrutura telhado/colonial: microinversor de um lado, inversor string do outro. Hoje o radar só rastreia a topologia string (módulo 625W); o painel fica vazio até que simulações de microinversor Belenus voltem a ser monitoradas, e cresce sozinho a partir daí.</p>
     <div class="legend">
       <span class="item"><span class="swatch micro"></span>Microinversor</span>
       <span class="item"><span class="swatch string"></span>String</span>
@@ -676,10 +658,10 @@
       <h2>Belenus vs. Dynamis &mdash; mesmo N, inversor String (Estrutura Solo)</h2>
       <span class="caption">mesma quantidade de módulos, distribuidor diferente, usina solo</span>
     </div>
-    <p class="note">Mesma contagem de módulos e mesma topologia (String HUAWEI), estrutura solo (ground-mount), em dois distribuidores: Dynamis com módulo 645W JINKO, Belenus com módulo 625W DMEGC. Cresce sozinho conforme mais N forem simulados nos dois.</p>
+    <p class="note">Mesma contagem de módulos e mesma topologia (inversor string), estrutura solo (ground-mount), em dois distribuidores: Dynamis com módulo 635W JINKO, Belenus com módulo 625W. Cresce sozinho conforme mais N forem simulados nos dois.</p>
     <div class="legend">
-      <span class="item"><span class="swatch dynamis"></span>Dynamis (645W JINKO)</span>
-      <span class="item"><span class="swatch belenus"></span>Belenus (625W DMEGC)</span>
+      <span class="item"><span class="swatch dynamis"></span>Dynamis (635W JINKO)</span>
+      <span class="item"><span class="swatch belenus"></span>Belenus (625W)</span>
     </div>
     <svg id="distSoloBarChart" class="chart-svg" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="empty-note" id="distSoloBarEmpty" hidden>Aguardando dados do banco…</div>
@@ -715,7 +697,6 @@
       <h2>Todos os orçamentos</h2>
       <span class="caption" id="tableCaption">carregando…</span>
     </div>
-    <p class="note">Histórico e variação desde a última verificação — a coluna de tendência preenche conforme o radar registra novos checks.</p>
     <div class="table-scroll">
       <table class="data" id="dataTable">
         <thead>
@@ -725,8 +706,6 @@
             <th>Potência</th>
             <th>Valor atual</th>
             <th>R$/kWp</th>
-            <th>Tendência</th>
-            <th>Var. último check</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -841,7 +820,6 @@
         valor: valor,
         kwp: kwp,
         perKwp: valor / kwp,
-        history: hist,
         lastCheck: latest.data_iso
       });
     });
@@ -1395,51 +1373,6 @@
     });
   }
 
-  function sparkSvg(history, desconto) {
-    var svg = document.createElementNS(SVGNS, "svg");
-    svg.setAttribute("class", "spark-svg");
-    svg.setAttribute("viewBox", "0 0 76 24");
-    if (history.length < 2) {
-      var dot = el("circle", { cx: 38, cy: 12, r: 2.2, class: "spark-flat" });
-      svg.appendChild(dot);
-      return svg;
-    }
-    var vals = history.map(function (h) { return h.subtotal * (1 - desconto); });
-    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-    var range = max - min || 1;
-    var pts = vals.map(function (v, i) {
-      var px = 3 + (70 * i) / (vals.length - 1);
-      var py = 21 - ((v - min) / range) * 18;
-      return [px, py];
-    });
-    var d = "M" + pts.map(function (p) { return p[0] + "," + p[1]; }).join(" L");
-    svg.appendChild(el("path", { d: d, class: "spark-path" }));
-    var last = pts[pts.length - 1];
-    svg.appendChild(el("circle", { cx: last[0], cy: last[1], r: 2.2, class: "spark-dot" }));
-    return svg;
-  }
-
-  function deltaBadge(history, desconto) {
-    if (history.length < 2) {
-      var span = document.createElement("span");
-      span.className = "delta-badge flat";
-      span.textContent = "sem histórico";
-      return span;
-    }
-    var cur = history[history.length - 1].subtotal * (1 - desconto);
-    var prev = history[history.length - 2].subtotal * (1 - desconto);
-    var diff = cur - prev;
-    var span2 = document.createElement("span");
-    if (Math.abs(diff) < 0.005) {
-      span2.className = "delta-badge flat";
-      span2.textContent = "sem variação";
-    } else {
-      span2.className = "delta-badge " + (diff > 0 ? "up" : "down");
-      span2.textContent = (diff > 0 ? "▲ " : "▼ ") + brl0(Math.abs(diff));
-    }
-    return span2;
-  }
-
   function drawFullTable(all) {
     var tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
@@ -1449,7 +1382,7 @@
       var tr = document.createElement("tr");
       tr.className = "group-row";
       var td = document.createElement("td");
-      td.colSpan = 7;
+      td.colSpan = 5;
       td.innerHTML = label + "<span class='count'>" + count + " orçamento" + (count > 1 ? "s" : "") + "</span>";
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -1462,10 +1395,8 @@
       var tdKwp = document.createElement("td"); tdKwp.textContent = d.kwp.toFixed(2) + " kWp";
       var tdVal = document.createElement("td"); tdVal.textContent = brl(d.valor);
       var tdPerKwp = document.createElement("td"); tdPerKwp.className = best ? "hi" : ""; tdPerKwp.textContent = brl0(d.perKwp);
-      var tdSpark = document.createElement("td"); tdSpark.appendChild(sparkSvg(d.history, d.desconto));
-      var tdDelta = document.createElement("td"); tdDelta.appendChild(deltaBadge(d.history, d.desconto));
       tr.appendChild(tdNum); tr.appendChild(tdMod); tr.appendChild(tdKwp); tr.appendChild(tdVal);
-      tr.appendChild(tdPerKwp); tr.appendChild(tdSpark); tr.appendChild(tdDelta);
+      tr.appendChild(tdPerKwp);
       tbody.appendChild(tr);
     }
 
